@@ -1,2 +1,1 @@
 tweepy==3.5.0
-simplepush==1.1.4

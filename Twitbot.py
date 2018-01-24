@@ -1,6 +1,5 @@
 import tweepy
 import sys
-from simplepush import send
 import random
 import time
 import os
@@ -15,21 +14,6 @@ access_secret = os.environ["ACCESS_SECRET"]
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_secret)
 api = tweepy.API(auth)
-
-##########################################################
-### Envoie une notif simplepush si le bot a recu un DM ###
-##########################################################
-def checkdm(dm) :
-    i = 0
-    for test in dm :
-        i+= 1
-        fichier = open("nb_dm.txt", "r")
-        nb_dm = int(fichier.read())
-        fichier.close()
-        if i > nb_dm : 
-            print ("New message !")
-            fichier = open("nb_dm.txt", "w")
-            send("745Xgi", "Twibot", str(i - nb_dm) + " nouveau message a ete recu", "event")
 
 def usage() :
     print ("Usage: python Twitbot.py [argument] [nb of tweet]\nThe first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
@@ -99,4 +83,3 @@ else :
 
     searchRequest = tweepy.Cursor(api.search, q=hashtag, lang='fr').items(int(sys.argv[2]))
     taff(searchRequest)   
-    #checkdm(api.direct_messages())
