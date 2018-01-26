@@ -4,6 +4,10 @@ followback les personnes vous ayant ajouté.
 
 Automatisé avec crontab il permet de jouer aux jeux concours sur twitter.
 
+## Installation
+
+`$ pip install -r requirement.txt`
+
 ## Exportez vos clef dans des variables d'environnement :
 
 ```
