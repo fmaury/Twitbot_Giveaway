@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tweepy
 import sys
 import random
@@ -31,7 +32,7 @@ def follow(name) :
 
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
-    #print (status.text)
+    #print (status.full_text)
     print (status.retweet_count)
 
 
@@ -40,7 +41,11 @@ def taff(searchRequest) :
     for status in searchRequest:
         uid = status.id
         nbRT = int(status.retweet_count);
-        texte = status.text.split(' ')
+        if "retweeted_status" in dir(status):
+            tweet=status.retweeted_status.full_text
+        else:
+            tweet=status.full_text
+        texte = tweet.split(' ')
         printTweetInfos(status)
         if (nbRT > 5 and hashtag.lower() != "concours" and hashtag.lower() != "#concours") \
                 or (nbRT > 1000 and (hashtag.lower() == "concours" or hashtag.lower() == "#concours")) :
@@ -81,5 +86,5 @@ else :
         print ("Trend: " + api.trends_place(23424819)[0]['trends'][0]['query'])
         hashtag = '#' + api.trends_place(23424819)[0]['trends'][0]['query']
 
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang='fr').items(int(sys.argv[2]))
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang='fr', tweet_mode="extended").items(int(sys.argv[2]))
     taff(searchRequest)   
