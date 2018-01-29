@@ -42,6 +42,11 @@ Il ne vous reste plus qu'a l'automatiser.
 #### Exemple de mon crontab :
 
 ```
+CONSUMER_KEY=
+CONSUMER_SECRET=
+ACCESS_TOKEN=
+ACCESS_SECRET=
+
 00 10 * * 7   python Twitbot.py "#melanchon" 10
 30 11 * * *   python Twitbot.py "#Concours" 50
 00 12 * * 3,5 python Twitbot.py "#LeagueOfLegends" 20
