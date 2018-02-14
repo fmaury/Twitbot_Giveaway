@@ -8,13 +8,13 @@ Automatisé avec crontab il permet de jouer aux jeux concours sur twitter.
 
 `$ pip install -r requirement.txt`
 
-## Exportez vos clef dans des variables d'environnement :
+## Ajoutez vos clef dans le fichier token.yaml :
 
 ```
-export CONSUMER_KEY="Consumer Key"
-export CONSUMER_SECRET="Consumer Secret"
-export ACCESS_TOKEN="Access Token"
-export ACCESS_SECRET="Access Token Secret"
+CONSUMER_KEY : "Votre Consumer Key (API Key)"
+CONSUMER_SECRET : "Votre Consumer Secret (API Secret)"
+ACCESS_TOKEN : "Votre Access Token"
+ACCESS_SECRET : "Votre Access Token Secret"
 ```
 ## Usage
 ```
@@ -42,11 +42,6 @@ Il ne vous reste plus qu'a l'automatiser.
 #### Exemple de mon crontab :
 
 ```
-CONSUMER_KEY=
-CONSUMER_SECRET=
-ACCESS_TOKEN=
-ACCESS_SECRET=
-
 00 10 * * 7   python Twitbot.py "#melanchon" 10
 30 11 * * *   python Twitbot.py "#Concours" 50
 00 12 * * 3,5 python Twitbot.py "#LeagueOfLegends" 20
