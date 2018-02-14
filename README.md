@@ -8,7 +8,7 @@ Automatisé avec crontab il permet de jouer aux jeux concours sur twitter.
 
 `$ pip install -r requirement.txt`
 
-## Ajoutez vos clef dans le fichier token.yaml :
+## Ajoutez vos clefs dans le fichier token.yaml :
 
 ```
 CONSUMER_KEY : "Votre Consumer Key (API Key)"
