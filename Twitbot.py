@@ -1,24 +1,25 @@
 # -*- coding: utf-8 -*-
 import tweepy
+import yaml
 import sys
 import random
 import time
 import os
 
-if not "CONSUMER_KEY" in os.environ or not "CONSUMER_SECRET" in os.environ or not "CONSUMER_SECRET" in os.environ or not "ACCESS_SECRET" in os.environ :
-  print ("Missing environnement variable !")
-  sys.exit(0)
-consumer_key = os.environ["CONSUMER_KEY"]
-consumer_secret = os.environ["CONSUMER_SECRET"]
-access_token = os.environ["ACCESS_TOKEN"]
-access_secret = os.environ["ACCESS_SECRET"]
-auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_secret)
-api = tweepy.API(auth)
 
 def usage() :
-    print ("Usage: python Twitbot.py [argument] [nb of tweet]\nThe first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
+    print ("Usage: python Twitbot.py [argument] [nb of tweet]\n   -The first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
     sys.exit(0)
+
+def getapi():
+    config = yaml.load(open("./token.yaml", 'r'))
+    consumer_key = config["CONSUMER_KEY"]
+    consumer_secret = config["CONSUMER_SECRET"]
+    access_token = config["ACCESS_TOKEN"]
+    access_secret = config["ACCESS_SECRET"]
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_secret)
+    return(tweepy.API(auth))
 
 def follow(name) :
     if name[len(name) - 1] == ':' :
@@ -29,12 +30,10 @@ def follow(name) :
     except Exception:
         print ("Already followed !")
 
-
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
     #print (status.full_text)
     print (status.retweet_count)
-
 
 def taff(searchRequest) :
     list_names = list()
@@ -67,24 +66,22 @@ def taff(searchRequest) :
         ####### ACTIVER APRES PHASE TEST #######
         time.sleep(random.randrange(2, 10, 1))
 
-
-my_infos = api.me()
-my_id = my_infos._json['id']
-if len(sys.argv) < 2 :
-  usage()
-hashtag = sys.argv[1]
-if len(sys.argv) < 3 and hashtag is not 'followback' :
-  usage()
-if sys.argv[2].isdigit() == False :
-  usage()
-if hashtag == 'followback' :
-    for follower in api.followers(my_id):
-        follow(follower._json['screen_name'])
-        print(follower._json['screen_name'])
-else :
-    if hashtag == 'trend' :
-        print ("Trend: " + api.trends_place(23424819)[0]['trends'][0]['query'])
-        hashtag = '#' + api.trends_place(23424819)[0]['trends'][0]['query']
-
+if __name__ == "__main__":
+    api = getapi()
+    my_infos = api.me()
+    my_id = my_infos._json['id']
+    hashtag = sys.argv[1]
+    if  len(sys.argv) < 2 or (len(sys.argv) < 3 and hashtag != 'followback') :
+        usage()
+    if hashtag == 'followback' :
+        for follower in api.followers(my_id):
+            follow(follower._json['screen_name'])
+            print(follower._json['screen_name'])
+    else :
+        if hashtag == 'trend' :
+            print ("Trend: " + api.trends_place(23424819)[0]['trends'][0]['query'])
+            hashtag = '#' + api.trends_place(23424819)[0]['trends'][0]['query']
+    if sys.argv[2].isdigit() == False :
+        usage()
     searchRequest = tweepy.Cursor(api.search, q=hashtag, lang='fr', tweet_mode="extended").items(int(sys.argv[2]))
     taff(searchRequest)   
