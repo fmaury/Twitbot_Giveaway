@@ -47,5 +47,5 @@ Il ne vous reste plus qu'a l'automatiser.
 00 12 * * 3,5 cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#LeagueOfLegends" 20
 00 15 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "trend" 10
 00 18 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "followback"
-30 22 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#PSG" 20
+30 22 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#VimOverEmacs" 20
 ```
