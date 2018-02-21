@@ -42,7 +42,7 @@ Il ne vous reste plus qu'a l'automatiser.
 #### Exemple de mon crontab :
 
 ```
-00 10 * * 7   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#melanchon" 10
+00 10 * * 7   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#pastis" 10
 30 11 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#Concours" 50
 00 12 * * 3,5 cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "#LeagueOfLegends" 20
 00 15 * * *   cd /home/user/Twitbot_Concours/ && /bin/python /home/user/Twitbot_Concours/Twitbot.py "trend" 10
