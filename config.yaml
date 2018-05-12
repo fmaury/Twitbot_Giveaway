@@ -1,0 +1,5 @@
+#Number of Retweet necessary to like and retweet the tweet
+nbRtLikeRt : 5
+#Number of Retweet necessary to follow the account of the tweet
+nbRtFollow : 100
+# 
