@@ -1,5 +1,15 @@
-#Number of Retweet necessary to like and retweet the tweet
+# Tweet's langage. 'fr' for French 'en' for English...
+lang : 'fr'
+
+# Trends on twitter by region, you can find the woeid on http://www.woeidlookup.com/
+# Exemple : France is 23424819
+woeid : 23424819
+
+# Number of Retweet necessary to like and retweet the tweet
 nbRtLikeRt : 5
-#Number of Retweet necessary to follow the account of the tweet
+
+# Number of Retweet necessary to follow the account of the tweet
 nbRtFollow : 100
-# 
+
+# How many month max the tweet must have to be processed
+monthMax : 1

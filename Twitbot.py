@@ -6,8 +6,6 @@ import random
 import time
 import datetime
 import os
-import pprint
-
 
 def usage() :
     print ("Usage: python Twitbot.py [argument] [nb of tweet]\n   -The first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
@@ -35,25 +33,24 @@ def follow(name) :
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
     print (status.retweet_count)
-    if status._json['retweeted_status'] : 
-        print(status._json['retweeted_status']['created_at'])
-    else : 
-        print(status._json['created_at'])
     #print (status)
 
-def tooOld(date):
-    mois = {"January":1, "Febuary": 2}
-    print (date)
+def tooOld(status):
+    month = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+    if hasattr(status, 'retweeted_status'):
+        date = status._json['retweeted_status']['created_at']
+    else : 
+        date = status._json['created_at']
     d = datetime.date.today()
-    print ("mois: " + str(d.month))
-    return (0)
+    if d.month - month[date.split()[1]] <= int(config['monthMax']) :
+        return (0)
+    return (1)
 
 def taff(searchRequest, hashtag) :
     list_names = list()
     for status in searchRequest:
-        if tooOld(status._json['created_at']):
+        if tooOld(status):
             continue
-
         uid = status.id
         nbRT = int(status.retweet_count);
         if hasattr(status, 'retweeted_status'):
@@ -69,29 +66,28 @@ def taff(searchRequest, hashtag) :
         print (tweet.encode('utf-8'))
         texte = tweet.split(' ')
         printTweetInfos(status)
-       # if hashtag == "42genesys" or (nbRT > config['nbRtLikeRt'] and hashtag.lower() != "concours" and hashtag.lower() != "#concours") \
-       #         or (nbRT > config['nbRtFollow'] and (hashtag.lower() == "concours" or hashtag.lower() == "#concours")) :
-       #     try :
-       #         api.create_favorite(uid)
-       #     except Exception:
-       #         print ("Already liked !")
-       #     try :
-       #         api.retweet(uid)
-       #     except Exception:
-       #         print ("Already RT !")
-       # if nbRT > config['nbRtFollow'] :
-       #     follow(status._json['user']['screen_name']) 
-       #     for names in texte:
-       #         if names and names[0] and names[0] == '@':
-       #             if names[len(names) - 1] != '.' and names[len(names) - 1] != ',':
-       #                 follow(names[1:])
-       #             else :
-       #                 follow(names[1:-1])
-       # del list_names[:]
-       # print("################################################################")
-       # ####### ACTIVER APRES PHASE TEST #######
-       # time.sleep(random.randrange(2, 10, 1))
-       # time.sleep(1)
+        if (nbRT > int(config['nbRtLikeRt']) and hashtag.lower() != "concours" and hashtag.lower() != "#concours") \
+                or (nbRT > int(config['nbRtFollow']) and (hashtag.lower() == "concours" or hashtag.lower() == "#concours")) :
+            try :
+                api.create_favorite(uid)
+            except Exception:
+                print ("Already liked !")
+            try :
+                api.retweet(uid)
+            except Exception:
+                print ("Already RT !")
+        if nbRT > int(config['nbRtFollow']) :
+            follow(status._json['user']['screen_name']) 
+            for names in texte:
+                if names and names[0] and names[0] == '@':
+                    if names[len(names) - 1] != '.' and names[len(names) - 1] != ',':
+                        follow(names[1:])
+                    else :
+                        follow(names[1:-1])
+        del list_names[:]
+        print("################################################################")
+        ####### ACTIVER APRES PHASE TEST #######
+        time.sleep(random.randrange(2, 10, 1))
 
 if __name__ == "__main__":
     config = yaml.load(open("./config.yaml", 'r'))
@@ -108,9 +104,9 @@ if __name__ == "__main__":
         sys.exit(0)
     else :
         if hashtag == 'trend' :
-            print ("Trend: " + api.trends_place(23424819)[0]['trends'][0]['query'])
-            hashtag = '#' + api.trends_place(23424819)[0]['trends'][0]['query']
+            print ("Trend: " + api.trends_place(int(config['woeid']))[0]['trends'][0]['query'])
+            hashtag = '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
     if sys.argv[2].isdigit() == False :
         usage()
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang='fr', tweet_mode="extended").items(int(sys.argv[2]))
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(int(sys.argv[2]))
     taff(searchRequest, hashtag)   
