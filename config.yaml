@@ -9,7 +9,7 @@ woeid : 23424819
 nbRtLikeRt : 5
 
 # Number of Retweet necessary to follow the account of the tweet
-nbRtFollow : 100
+nbRtFollow : 500
 
 # How many month max the tweet must have to be processed
 monthMax : 1
