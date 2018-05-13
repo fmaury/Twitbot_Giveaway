@@ -30,9 +30,9 @@ Mots clef :
 Le deuxieme argument doit etre un int, il correspond au nombre de hashtag à récupérer, un tri se fera par la suite pour supprimer les tweet inutiles. Il n'est pas utilisé avec l'argument "followback".
 
 ## Pourquoi l'utiliser 
-En utilisant le #Concours comme premier argument, il ne va jouer qu'aux concours ayant deja 1k retweet pour éviter de jouer a des concours peu interessants (on veut des lots stylé).
+En utilisant le #Concours comme premier argument, il ne va jouer qu'aux concours ayant deja 500 retweet, modifiable dans le fichier config.yaml, pour éviter de jouer a des concours peu interessants (on veut des lots stylé).
 
-Pour les autres hashtag, il les retweetera que si ils ont deja 5RT, pour eviter de retweeter n'importe quoi (spam, d'autres bot...).
+Pour les autres hashtag, il les retweetera que si ils ont deja 5RT, modifiable dans le fichier config.yaml, pour eviter de retweeter n'importe quoi (spam, d'autres bot...).
 
 Il faut eviter de jouer uniquement aux jeux concours avec votre compte au cas ou une des personnes l'organisant verifie votre compte.
 
