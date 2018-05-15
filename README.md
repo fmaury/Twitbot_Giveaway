@@ -2,7 +2,7 @@
 Twitbot est un programme qui permet de retweeter, aimer et suivre des postes correpondant à un hashtag ou une tendance et
 followback les personnes vous ayant ajouté.
 
-Automatisé avec crontab il permet de jouer aux jeux concours sur twitter.
+Automatisé avec cron il permet de jouer aux jeux concours sur twitter.
 
 ## Installation
 
