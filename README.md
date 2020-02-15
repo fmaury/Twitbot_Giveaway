@@ -1,6 +1,6 @@
 # Twitbot_Concours
-Twitbot est un programme qui permet de retweeter, aimer et suivre des postes correpondant à un hashtag ou une tendance et
-followback les personnes vous ayant ajouté.
+Twitbot est un programme qui permet de retweeter, aimer et suivre des postes correpondant à un hashtag ou une tendance, 
+followback les personnes vous ayant ajouté ou tweeter sur le top tendance.
 
 Automatisé avec cron il permet de jouer aux jeux concours sur twitter.
 
@@ -18,16 +18,8 @@ ACCESS_SECRET : "Votre Access Token Secret"
 ```
 ## Usage
 ```
-python Twitbot.py [argument] [nb of tweet]
+python Twitbot.py --help
 ```
-Le premier argument doit etre un hashtag ou un mot clef.
-
-Mots clef :
-* trend : récupère le hashtag en tendance France.
-
-* followback : va suivre toutes les personne qui ont suivit votre compte.
-
-Le deuxieme argument doit etre un int, il correspond au nombre de hashtag à récupérer, un tri se fera par la suite pour supprimer les tweet inutiles. Il n'est pas utilisé avec l'argument "followback".
 
 ## Pourquoi l'utiliser 
 En utilisant le #Concours comme premier argument, il ne va jouer qu'aux concours ayant deja 500 retweet, modifiable dans le fichier config.yaml, pour éviter de jouer a des concours peu interessants (on veut des lots stylé).
