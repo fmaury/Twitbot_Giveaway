@@ -27,7 +27,7 @@ def follow(name) :
 
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
-    print ("This tweet has " + status.retweet_count + " RT")
+    print ("This tweet has " + str(status.retweet_count) + " RT")
 
 def tooOld(status):
     month = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
@@ -40,9 +40,9 @@ def tooOld(status):
         return (0)
     return (1)
 
-def taff(hashtag, numbers) :
-    print ("Process " + numbers + " tweets with the hashtag " + args.hashtag)
-    searchRequest = tweepy.Cursor(api.search, q=args.hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
+def taff(api, hashtag, numbers) :
+    print ("Process " + str(numbers) + " tweets with the hashtag " + hashtag)
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
     list_names = list()
     for status in searchRequest:
         time.sleep(random.randrange(2, 10, 1))
@@ -90,7 +90,7 @@ def followback(api) :
         follow(follower._json['screen_name'])
 
 def trend(api, numbers) :
-    taff(api, '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
+    taff(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
