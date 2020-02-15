@@ -7,6 +7,7 @@ import time
 import datetime
 import os
 import argparse
+import json
 
 def getapi():
     token = yaml.load(open("./token.yaml", 'r'), Loader=yaml.FullLoader)
@@ -92,6 +93,26 @@ def followback(api) :
 def trend(api, numbers) :
     taff(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
 
+def stole(api) :
+    hashtag = api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(10)
+    for status in searchRequest :
+        if int(status._json["user"]["followers_count"]) > 200 :
+            print ("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
+            continue
+        if hasattr(status, 'retweeted_status'):
+            try:
+                tweet = status.retweeted_status.extended_tweet["full_text"]
+            except:
+                tweet = status.retweeted_status.full_text
+        else:
+            try:
+                tweet = status.extended_tweet["full_text"]
+            except :
+                tweet = status.full_text
+        api.update_status(tweet.encode('utf-8'))
+        print ("This user as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-f", "--followback", help="Follow back people that follow you", action='store_true')
@@ -100,7 +121,7 @@ if __name__ == "__main__":
     parser.add_argument("-m", "--hashtag", help="Request tweets with this hashtag in it", action='store')
     parser.add_argument("-n", "--numbers", help="Number of tweets the script will request", action='store', default=10, type=int)
     args = parser.parse_args()
-    if not args.followback and not args.trend and not args.hashtag :
+    if not args.followback and not args.trend and not args.hashtag and not args.stole :
         parser.print_help()
         sys.exit() 
     config = yaml.load(open("./config.yaml", 'r'), Loader=yaml.FullLoader)
@@ -111,3 +132,5 @@ if __name__ == "__main__":
         trend(api, args.numbers)
     if args.hashtag :
         taff(api, args.hashtag, args.numbers)
+    if args.stole :
+        stole(api)
