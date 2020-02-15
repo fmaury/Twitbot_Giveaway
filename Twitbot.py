@@ -6,6 +6,7 @@ import random
 import time
 import datetime
 import os
+import argparse
 
 def usage() :
     print ("Usage: python Twitbot.py [argument] [nb of tweet]\n   -The first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
@@ -33,7 +34,6 @@ def follow(name) :
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
     print (status.retweet_count)
-    #print (status)
 
 def tooOld(status):
     month = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
@@ -49,10 +49,11 @@ def tooOld(status):
 def taff(searchRequest, hashtag) :
     list_names = list()
     for status in searchRequest:
+        time.sleep(random.randrange(2, 10, 1))
         if tooOld(status):
             continue
         uid = status.id
-        nbRT = int(status.retweet_count);
+        nbRT = int(status.retweet_count)
         if hasattr(status, 'retweeted_status'):
             try:
                 tweet = status.retweeted_status.extended_tweet["full_text"]
@@ -87,26 +88,31 @@ def taff(searchRequest, hashtag) :
         del list_names[:]
         print("################################################################")
         ####### ACTIVER APRES PHASE TEST #######
-        time.sleep(random.randrange(2, 10, 1))
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-f", "--followback", help="Follow back people that follow you", action='store_true')
+    parser.add_argument("-t", "--trend", help="Use twitter trends instead of a specific hashtag", action='store_true')
+    parser.add_argument("-m", "--hashtag", help="Request tweets with this hashtag in it", action='store')
+    parser.add_argument("-n", "--numbers", help="Number of tweets the script will request", action='store', default=10, type=int)
+    args = parser.parse_args()
+    if not args.followback and not args.trend and not args.hashtag :
+        parser.print_help()
+        sys.exit() 
     config = yaml.load(open("./config.yaml", 'r'))
     api = getapi()
-    hashtag = sys.argv[1]
-    if  len(sys.argv) < 2 or (len(sys.argv) < 3 and hashtag != 'followback') :
-        usage()
-    if hashtag == 'followback' :
+    if args.followback :
         my_infos = api.me()
         my_id = my_infos._json['id']
         for follower in api.followers(my_id):
             follow(follower._json['screen_name'])
             print(follower._json['screen_name'])
-        sys.exit(0)
-    else :
-        if hashtag == 'trend' :
-            print ("Trend: " + api.trends_place(int(config['woeid']))[0]['trends'][0]['query'])
-            hashtag = '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
-    if sys.argv[2].isdigit() == False :
-        usage()
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(int(sys.argv[2]))
-    taff(searchRequest, hashtag)   
+    if args.trend :
+        trend = '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
+        print ("Trend: " + trend)
+        searchRequest = tweepy.Cursor(api.search, q=trend, lang=str(config['lang']), tweet_mode="extended").items(args.numbers)
+        taff(searchRequest, trend)   
+    if args.hashtag :
+        print ("Hashtag: " + args.hashtag)
+        searchRequest = tweepy.Cursor(api.search, q=args.hashtag, lang=str(config['lang']), tweet_mode="extended").items(args.numbers)
+        taff(searchRequest, args.hashtag)   
