@@ -8,10 +8,6 @@ import datetime
 import os
 import argparse
 
-def usage() :
-    print ("Usage: python Twitbot.py [argument] [nb of tweet]\n   -The first argument must be a hashtag or a keyword (trend or followback) and the second must be an int.")
-    sys.exit(0)
-
 def getapi():
     token = yaml.load(open("./token.yaml", 'r'))
     consumer_key = token["CONSUMER_KEY"]
@@ -23,17 +19,15 @@ def getapi():
     return(tweepy.API(auth))
 
 def follow(name) :
-    if name[len(name) - 1] == ':' :
-        name = name[:len(name) - 1]
-        print ("Follow: " + name)
     try : 
+        print (name + " is now my friend !")
         api.create_friendship(name) 
     except Exception:
-        print ("Already followed !")
+        print (name + " is already my firend :(")
 
 def printTweetInfos(status) :
     print(status._json['user']['screen_name'])
-    print (status.retweet_count)
+    print ("This tweet has " + status.retweet_count + " RT")
 
 def tooOld(status):
     month = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6, "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
@@ -46,7 +40,9 @@ def tooOld(status):
         return (0)
     return (1)
 
-def taff(searchRequest, hashtag) :
+def taff(hashtag, numbers) :
+    print ("Process " + numbers + " tweets with the hashtag " + args.hashtag)
+    searchRequest = tweepy.Cursor(api.search, q=args.hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
     list_names = list()
     for status in searchRequest:
         time.sleep(random.randrange(2, 10, 1))
@@ -87,7 +83,14 @@ def taff(searchRequest, hashtag) :
                         follow(names[1:-1])
         del list_names[:]
         print("################################################################")
-        ####### ACTIVER APRES PHASE TEST #######
+
+def followback(api) :
+    my_id = api.me()._json['id']
+    for follower in api.followers(my_id):
+        follow(follower._json['screen_name'])
+
+def trend(api, numbers) :
+    taff(api, '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -102,17 +105,8 @@ if __name__ == "__main__":
     config = yaml.load(open("./config.yaml", 'r'))
     api = getapi()
     if args.followback :
-        my_infos = api.me()
-        my_id = my_infos._json['id']
-        for follower in api.followers(my_id):
-            follow(follower._json['screen_name'])
-            print(follower._json['screen_name'])
+        followback(api)
     if args.trend :
-        trend = '#' + api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
-        print ("Trend: " + trend)
-        searchRequest = tweepy.Cursor(api.search, q=trend, lang=str(config['lang']), tweet_mode="extended").items(args.numbers)
-        taff(searchRequest, trend)   
+        trend(api, args.numbers)
     if args.hashtag :
-        print ("Hashtag: " + args.hashtag)
-        searchRequest = tweepy.Cursor(api.search, q=args.hashtag, lang=str(config['lang']), tweet_mode="extended").items(args.numbers)
-        taff(searchRequest, args.hashtag)   
+        taff(api, args.hashtag, args.numbers)
