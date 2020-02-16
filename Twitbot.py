@@ -10,7 +10,7 @@ import argparse
 import json
 
 def getapi():
-    token = yaml.load(open("./token.yaml", 'r'), Loader=yaml.FullLoader)
+    token = yaml.load(open("./token.yaml", 'r'), Loader=yaml.Loader)
     consumer_key = token["CONSUMER_KEY"]
     consumer_secret = token["CONSUMER_SECRET"]
     access_token = token["ACCESS_TOKEN"]
@@ -95,7 +95,7 @@ def trend(api, numbers) :
 
 def stole(api) :
     hashtag = api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(10)
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(50)
     for status in searchRequest :
         if int(status._json["user"]["followers_count"]) > 200 :
             print ("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
@@ -110,6 +110,9 @@ def stole(api) :
                 tweet = status.extended_tweet["full_text"]
             except :
                 tweet = status.full_text
+        if len(tweet) > 100 :
+            print("This tweet is too long: " + str(len(tweet)))
+            continue
         api.update_status(tweet.encode('utf-8'))
         print ("This user as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
 
@@ -124,7 +127,7 @@ if __name__ == "__main__":
     if not args.followback and not args.trend and not args.hashtag and not args.stole :
         parser.print_help()
         sys.exit() 
-    config = yaml.load(open("./config.yaml", 'r'), Loader=yaml.FullLoader)
+    config = yaml.load(open("./config.yaml", 'r'), Loader=yaml.Loader)
     api = getapi()
     if args.followback :
         followback(api)
