@@ -26,8 +26,18 @@ def follow(name) :
     except Exception:
         print (name + " is already my firend :(")
 
+def get_username(api, num) :
+    return api.get_user(api.followers_ids(api.me()._json['id'])[num])._json["screen_name"]
+
+def tag_someone(status, api) :
+    api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42), status._json["entities"]["user_mentions"][0]['id'])
+
 def printTweetInfos(status) :
-    print(status._json['user']['screen_name'])
+    print("Usernamename tweet : " + status._json['user']['screen_name'])
+    try :
+        print ("Original username tweet" + status._json["entities"]["user_mentions"][0]["screen_name"])
+    except :
+        print ("No original username tweet")
     print ("This tweet has " + str(status.retweet_count) + " RT")
 
 def tooOld(status):
@@ -44,7 +54,6 @@ def tooOld(status):
 def taff(api, hashtag, numbers) :
     print ("Process " + str(numbers) + " tweets with the hashtag " + hashtag)
     searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
-    list_names = list()
     for status in searchRequest:
         time.sleep(random.randrange(2, 10, 1))
         if tooOld(status):
@@ -64,8 +73,8 @@ def taff(api, hashtag, numbers) :
         print (tweet.encode('utf-8'))
         texte = tweet.split(' ')
         printTweetInfos(status)
-        if (nbRT > int(config['nbRtLikeRt']) and hashtag.lower() != "concours" and hashtag.lower() != "#concours") \
-                or (nbRT > int(config['nbRtFollow']) and (hashtag.lower() == "concours" or hashtag.lower() == "#concours")) :
+        if (nbRT > int(config['nbRtLikeRt']) and hashtag.lower().find("concour") == -1) \
+                or (nbRT > int(config['nbRtFollow']) and hashtag.lower().find("concour") > -1) :
             try :
                 api.create_favorite(uid)
             except Exception:
@@ -75,20 +84,27 @@ def taff(api, hashtag, numbers) :
             except Exception:
                 print ("Already RT !")
         if nbRT > int(config['nbRtFollow']) :
-            follow(status._json['user']['screen_name']) 
+            try :
+                follow(status._json["entities"]["user_mentions"][0]["screen_name"])
+            except :
+                follow(status._json['user']['screen_name']) 
             for names in texte:
-                if names and names[0] and names[0] == '@':
-                    if names[len(names) - 1] != '.' and names[len(names) - 1] != ',':
-                        follow(names[1:])
-                    else :
-                        follow(names[1:-1])
-        del list_names[:]
+                if names[0] == '@':
+                    if names[:-1] == '.' or names[:-1] == ',':
+                        names = names[:-1]
+                    follow(names)
+                    print ("Name in the tweet following : " + names)
+            # tag_someone(status, api)
         print("################################################################")
 
 def followback(api) :
     my_id = api.me()._json['id']
-    for follower in api.followers(my_id):
-        follow(follower._json['screen_name'])
+    userlist = api.followers_ids(my_id)
+    # print (userlist[42])
+    # for follower in userlist:
+        # time.sleep(random.randrange(2, 5, 1))
+        # print (follower)
+        # follow(follower)
 
 def trend(api, numbers) :
     taff(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
