@@ -89,7 +89,7 @@ def taff(api, hashtag, numbers) :
             except :
                 follow(status._json['user']['screen_name']) 
             for names in texte:
-                if names[0] == '@':
+                if names and names[0] == '@':
                     if names[:-1] == '.' or names[:-1] == ',':
                         names = names[:-1]
                     follow(names)
@@ -100,11 +100,9 @@ def taff(api, hashtag, numbers) :
 def followback(api) :
     my_id = api.me()._json['id']
     userlist = api.followers_ids(my_id)
-    # print (userlist[42])
-    # for follower in userlist:
-        # time.sleep(random.randrange(2, 5, 1))
-        # print (follower)
-        # follow(follower)
+    for follower in userlist:
+        time.sleep(random.randrange(2, 5, 1))
+        follow(follower)
 
 def trend(api, numbers) :
     taff(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
@@ -126,7 +124,7 @@ def stole(api) :
                 tweet = status.extended_tweet["full_text"]
             except :
                 tweet = status.full_text
-        if len(tweet) > 100 :
+        if len(tweet) > 100 or tweet.find('@'):
             print("This tweet is too long: " + str(len(tweet)))
             continue
         api.update_status(tweet.encode('utf-8'))
