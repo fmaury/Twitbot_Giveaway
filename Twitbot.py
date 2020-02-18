@@ -92,8 +92,8 @@ def taff(api, hashtag, numbers) :
                 if names and names[0] == '@':
                     if names[:-1] == '.' or names[:-1] == ',':
                         names = names[:-1]
-                    follow(names)
-                    print ("Name in the tweet following : " + names)
+                    follow(names.encode('utf-8'))
+                    print ("Name in the tweet following : " + names.encode('utf-8'))
             # tag_someone(status, api)
         print("################################################################")
 
