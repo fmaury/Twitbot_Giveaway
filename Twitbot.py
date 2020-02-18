@@ -132,6 +132,7 @@ def stole(api) :
             continue
         api.update_status(tweet.encode('utf-8'))
         print ("This user as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
+        break
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
