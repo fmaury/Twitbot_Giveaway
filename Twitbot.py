@@ -124,8 +124,11 @@ def stole(api) :
                 tweet = status.extended_tweet["full_text"]
             except :
                 tweet = status.full_text
-        if len(tweet) > 100 or tweet.find('@'):
+        if len(tweet) > 100 :
             print("This tweet is too long: " + str(len(tweet)))
+            continue
+        if tweet.find('@') != -1 :
+            print("Someone is mention in this tweet"))
             continue
         api.update_status(tweet.encode('utf-8'))
         print ("This user as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
