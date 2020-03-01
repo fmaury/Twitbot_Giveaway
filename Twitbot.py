@@ -109,7 +109,7 @@ def trend(api, numbers) :
 
 def stole(api) :
     hashtag = api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(50)
+    searchRequest = tweepy.Cursor(api.search, q=hashtag + ' -filter:retweets', lang=str(config['lang']), tweet_mode="extended").items(50)
     for status in searchRequest :
         if int(status._json["user"]["followers_count"]) > 200 :
             print ("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
@@ -124,14 +124,14 @@ def stole(api) :
                 tweet = status.extended_tweet["full_text"]
             except :
                 tweet = status.full_text
-        if len(tweet) > 100 :
+        if len(tweet) > 140 :
             print("This tweet is too long: " + str(len(tweet)))
             continue
         if tweet.find('@') != -1 :
             print("Someone is mention in this tweet")
             continue
         api.update_status(tweet.encode('utf-8'))
-        print ("This user as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
+        print ("The user " + str(status._json["user"]["screen_name"]) + " as only " + str(status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
         break
 
 if __name__ == "__main__":
