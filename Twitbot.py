@@ -83,6 +83,8 @@ def taff(api, hashtag, numbers) :
                 api.retweet(uid)
             except Exception:
                 print ("Already RT !")
+                print("################################################################")
+                continue
         if nbRT > int(config['nbRtFollow']) :
             try :
                 follow(status._json["entities"]["user_mentions"][0]["screen_name"])
