@@ -30,7 +30,7 @@ def get_username(api, num) :
     return api.get_user(api.followers_ids(api.me()._json['id'])[num])._json["screen_name"]
 
 def tag_someone(status, api) :
-    api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42), status._json["entities"]["user_mentions"][0]['id'])
+    api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42), status._json["id"])
 
 def printTweetInfos(status) :
     print("Usernamename tweet : " + status._json['user']['screen_name'])
@@ -94,7 +94,7 @@ def taff(api, hashtag, numbers) :
                         names = names[:-1]
                     follow(names.encode('utf-8'))
                     print ("Name in the tweet following : " + names.encode('utf-8'))
-            # tag_someone(status, api)
+            tag_someone(status, api)
         print("################################################################")
 
 def followback(api) :
