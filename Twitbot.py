@@ -21,10 +21,10 @@ def getapi():
 
 def follow(name) :
     try : 
-        print (name + " is now my friend !")
         api.create_friendship(name) 
+        print (str(name) + " is now my friend !")
     except Exception:
-        print (name + " is already my firend :(")
+        print (str(name) + " is already my friend :(")
 
 def get_username(api, num) :
     return api.get_user(api.followers_ids(api.me()._json['id'])[num])._json["screen_name"]
@@ -51,9 +51,9 @@ def tooOld(status):
         return (0)
     return (1)
 
-def taff(api, hashtag, numbers) :
-    print ("Process " + str(numbers) + " tweets with the hashtag " + hashtag)
-    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
+def concours(api, numbers) :
+    print ("Process " + str(numbers) + " concours tweets")
+    searchRequest = tweepy.Cursor(api.search, q="#concours", lang=str(config['lang']), tweet_mode="extended").items(numbers)
     for status in searchRequest:
         time.sleep(random.randrange(2, 10, 1))
         if tooOld(status):
@@ -73,19 +73,19 @@ def taff(api, hashtag, numbers) :
         print (tweet.encode('utf-8'))
         texte = tweet.split(' ')
         printTweetInfos(status)
-        if (nbRT > int(config['nbRtLikeRt']) and hashtag.lower().find("concour") == -1) \
-                or (nbRT > int(config['nbRtFollow']) and hashtag.lower().find("concour") > -1) :
+        if nbRT > int(config['neededLikeRtConcours']) :
             try :
                 api.create_favorite(uid)
             except Exception:
                 print ("Already liked !")
+                print("################################################################")
+                continue
             try :
                 api.retweet(uid)
             except Exception:
                 print ("Already RT !")
                 print("################################################################")
                 continue
-        if nbRT > int(config['nbRtFollow']) :
             try :
                 follow(status._json["entities"]["user_mentions"][0]["screen_name"])
             except :
@@ -96,18 +96,58 @@ def taff(api, hashtag, numbers) :
                         names = names[:-1]
                     follow(names.encode('utf-8'))
                     print ("Name in the tweet following : " + names.encode('utf-8'))
-            tag_someone(status, api)
+            # tag_someone(status, api)
+        print("################################################################")
+
+def hashtag(api, hashtag, numbers) :
+    print ("Process " + str(numbers) + " tweets with the hashtag " + hashtag)
+    searchRequest = tweepy.Cursor(api.search, q=hashtag, lang=str(config['lang']), tweet_mode="extended").items(numbers)
+    for status in searchRequest:
+        time.sleep(random.randrange(2, 10, 1))
+        if tooOld(status):
+            continue
+        uid = status.id
+        nbRT = int(status.retweet_count)
+        printTweetInfos(status)
+        if nbRT > int(config['neededLikeRt']) :
+            try :
+                api.create_favorite(uid)
+            except Exception:
+                print ("Already liked !")
+            try :
+                api.retweet(uid)
+            except Exception:
+                print ("Already RT !")
         print("################################################################")
 
 def followback(api) :
     my_id = api.me()._json['id']
     userlist = api.followers_ids(my_id)
     for follower in userlist:
-        time.sleep(random.randrange(2, 5, 1))
+        # time.sleep(random.randrange(2, 5, 1))
         follow(follower)
 
+def destroy(api) :
+    my_id = api.me()._json['id']
+    following = api.friends_ids(my_id)
+    followed = api.followers_ids(my_id)
+    for follow in following :
+        print ('follow ' + str(follow))
+        my_friend = 0
+        for friend in followed :
+            if friend == followed :
+                my_friend = 1
+                break
+        if not my_friend :
+            try :
+                print ('Byebye ' + str(follow))
+                api.destroy_friendship(follow)
+            except :
+                print ('error')
+
+
 def trend(api, numbers) :
-    taff(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
+    hashtag(api, api.trends_place(int(config['woeid']))[0]['trends'][0]['query'], numbers)   
 
 def stole(api) :
     hashtag = api.trends_place(int(config['woeid']))[0]['trends'][0]['query']
@@ -138,22 +178,28 @@ def stole(api) :
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--concours", help="Play to concours games", action='store_true')
     parser.add_argument("-f", "--followback", help="Follow back people that follow you", action='store_true')
+    parser.add_argument("-d", "--destroy", help="Remove a number of friend", action='store_true')
     parser.add_argument("-t", "--trend", help="Use twitter trends instead of a specific hashtag", action='store_true')
     parser.add_argument("-s", "--stole", help="Stole someone tweet in the top trend section", action='store_true')
     parser.add_argument("-m", "--hashtag", help="Request tweets with this hashtag in it", action='store')
     parser.add_argument("-n", "--numbers", help="Number of tweets the script will request", action='store', default=10, type=int)
     args = parser.parse_args()
-    if not args.followback and not args.trend and not args.hashtag and not args.stole :
+    if not args.destroy and not args.concours and not args.followback and not args.trend and not args.hashtag and not args.stole :
         parser.print_help()
         sys.exit() 
     config = yaml.load(open("./config.yaml", 'r'), Loader=yaml.Loader)
     api = getapi()
+    if args.concours :
+        concours(api, args.numbers)
     if args.followback :
         followback(api)
+    if args.destroy :
+        destroy(api)
     if args.trend :
         trend(api, args.numbers)
     if args.hashtag :
-        taff(api, args.hashtag, args.numbers)
+        hashtag(api, args.hashtag, args.numbers)
     if args.stole :
         stole(api)
