@@ -35,11 +35,13 @@ class Twittbot:
 
     """ Followw back the users who followed your account """
     def followback(self):
+        self.msg_log("START :: Following back people.")
         my_id = self.api.me()._json['id']
         userlist = self.api.followers_ids(my_id)
         for follower in userlist:
             time.sleep(random.randrange(2, 5, 1))
             self.follow(follower)
+        self.msg_log("START :: Folliw back over.")
 
     #   def get_username(api, num):
     #       return self.api.get_user(self.api.followers_ids(self.api.me()._json['id'])[num])._json["screen_name"]
@@ -67,41 +69,6 @@ class Twittbot:
         if d.month - month[date.split()[1]] <= int(self.config['monthMax']):
             return False
         return True
-
-    """ Send trends tweet to the process_retweet function """
-    def trend(self, numbers):
-        self.process_retweet(self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query'], numbers)
-
-    """ Get some trends tweet then look if the user has few followers and tweet it like it was you that posted that """
-    def stole(self):
-        hashtag = self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query']
-        search_request = tweepy.Cursor(self.api.search, q=hashtag + ' -filter:retweets', lang=str(self.config['lang']), tweet_mode="extended").items(50)
-        for status in search_request:
-            if int(status._json["user"]["followers_count"]) > 200:
-                self.msg_log("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
-                continue
-            if hasattr(status, 'retweeted_status'):
-                try:
-                    tweet = status.retweeted_status.extended_tweet["full_text"]
-                except Exception:
-                    tweet = status.retweeted_status.full_text
-            else:
-                try:
-                    tweet = status.extended_tweet["full_text"]
-                except:
-                    tweet = status.full_text
-            if len(tweet) > 140:
-                self.msg_log("This tweet is too long: " + str(len(tweet)))
-                continue
-            if tweet.find('@') != -1:
-                self.msg_log("Someone is tagged in this tweet")
-                continue
-            self.api.update_status(tweet.encode('utf-8'))
-            self.msg_log("The user " + str(status._json["user"]["screen_name"]) + " as only " + str(
-                status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
-            break
-
-    ############################################################################### MAIN PROCESS ###############################################################################
 
     """ Return the complete tweet """
     @staticmethod
@@ -147,7 +114,7 @@ class Twittbot:
 
     """ Get tweets, sort, follow and like them """
     def process_hashtag(self, hashtag, numbers):
-        self.msg_log("START :: Looking for " + str(numbers) + " tweets containing " + hashtag)
+        self.msg_log(f"START :: Looking for {str(numbers)} tweets containing {hashtag}")
         search_request = tweepy.Cursor(self.api.search, q=hashtag, lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
@@ -161,3 +128,30 @@ class Twittbot:
                 self.__follow_accounts(status, tweet)
                 # tag_someone(status, self.api)
             self.msg_log(f"END :: Process hashtag {hashtag} over.")
+
+
+    """ Send trends tweet to the process_retweet function """
+    def trend(self, numbers):
+        self.process_retweet(self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query'], numbers)
+
+    """ Get some trends tweet then look if the user has few followers and tweet it like it was you that posted that """
+    def stole(self):
+        self.msg_log("START :: Looking for a tweet to stole.")
+        hashtag = self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query']
+        search_request = tweepy.Cursor(self.api.search, q=hashtag + ' -filter:retweets', lang=str(self.config['lang']), tweet_mode="extended").items(50)
+        for status in search_request:
+            if int(status._json["user"]["followers_count"]) > 200:
+                self.msg_log("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
+                continue
+            tweet = self.__return_tweet(status)
+            if len(tweet) > 140:
+                self.msg_log("This tweet is too long: " + str(len(tweet)))
+                continue
+            if tweet.find('@') != -1:
+                self.msg_log("Someone is tagged in this tweet")
+                continue
+            self.api.update_status(tweet.encode('utf-8'))
+            self.msg_log("The user " + str(status._json["user"]["screen_name"]) + " as only " + str(
+                status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
+            self.msg_log("END :: Tweet stoled (hihi).")
+            break
