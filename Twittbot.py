@@ -18,17 +18,18 @@ class Twittbot:
     def msg_log(self, message):
         timestamp = datetime.datetime.now()
         with open(self.logfile, 'a+') as logfile:
-            logfile.write(f'[{timestamp}] {message}')
+            logfile.write(f'[{timestamp}] {message}\n')
 
     """ Connect to the twitter api """
     def connect_api(self, consumer_key=None, consumer_secret=None, access_token=None, access_secret=None):
-        self.api = tweepy.OAuthHandler(consumer_key, consumer_secret)
-        self.api.set_access_token(access_token, access_secret)
+        auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+        auth.set_access_token(access_token, access_secret)
+        self.api = tweepy.API(auth)
 
     """ Follow a twitter account """
     def follow(self, name):
         try:
-            self.msg_log(name + " is now followed.")
+            self.msg_log(f'{name} is now followed.')
             self.api.create_friendship(name)
         except Exception as e:
             self.msg_log(f'{name} is already my friend :(, can\'t follow him: {e}')
@@ -37,8 +38,8 @@ class Twittbot:
     def followback(self):
         self.msg_log("START :: Following back people.")
         my_id = self.api.me()._json['id']
-        userlist = self.api.followers_ids(my_id)
-        for follower in userlist:
+        user_list = self.api.followers_ids(my_id)
+        for follower in user_list:
             time.sleep(random.randrange(2, 5, 1))
             self.follow(follower)
         self.msg_log("START :: Folliw back over.")
@@ -54,6 +55,7 @@ class Twittbot:
     def print_tweet_infos(self, status, tweet):
         try:
             self.msg_log(f'Tweet write by {status._json["entities"]["user_mentions"][0]["screen_name"]}. Has {str(status.retweet_count)} RTs')
+
         except:
             self.msg_log(f'Tweet write by {status._json["user"]["screen_name"]}. Has {str(status.retweet_count)} RTs')
         self.msg_log(tweet.encode('utf-8'))
@@ -85,21 +87,23 @@ class Twittbot:
                 tweet = status.full_text
         return tweet
 
-    def __retweet_like_handler(self, status, hashtag):
-        if (int(status.retweet_count) > int(self.config['nbRtLikeRt']) and hashtag.lower().find("concour") == -1) \
-                or (int(status.retweet_count) > int(self.config['nbRtFollow']) and hashtag.lower().find("concour") > -1):
-            try:
-                self.api.create_favorite(status.id)
-            except Exception as e:
-                self.msg_log(f"Already liked !: {e}")
-            try:
-                self.api.retweet(status.id)
-            except Exception as e:
-                self.msg_log(f"Already RT !: {e}")
-                return False
-        return True
+    def __retweet_hashtag_handler(self, status):
+        try:
+            self.api.retweet(status.id)
+        except Exception as e:
+            self.msg_log(f"Already RT !: {e}")
 
-    """ Foolow account and tagged account in the tweet """
+    def __retweet_like_giveaway_handler(self, status):
+        try:
+            self.api.create_favorite(status.id)
+        except Exception as e:
+            self.msg_log(f"Already liked !: {e}")
+        try:
+            self.api.retweet(status.id)
+        except Exception as e:
+            self.msg_log(f"Already RT !: {e}")
+
+    """ Follow account and tagged account in the tweet """
     def __follow_accounts(self, status, tweet):
         try:
             self.follow(status._json["entities"]["user_mentions"][0]["screen_name"])
@@ -112,22 +116,33 @@ class Twittbot:
                 self.follow(names.encode('utf-8'))
                 self.msg_log(f'The user {names.encode("utf-8")} tag in the tweet was followed.')
 
-    """ Get tweets, sort, follow and like them """
-    def process_hashtag(self, hashtag, numbers):
+    """ Get giveaways tweets, sort, follow, retweet and like them """
+    def handle_contest(self, numbers):
+        self.msg_log(f"START :: Looking for {str(numbers)} giveaways tweets")
+        search_request = tweepy.Cursor(self.api.search, q='concours', lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
+        for status in search_request:
+            time.sleep(random.randrange(2, 10, 1))
+            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_contest']):
+                continue
+            tweet = self.__return_tweet(status)
+            self.print_tweet_infos(status, tweet)
+            self.__retweet_like_giveaway_handler(status)
+            self.__follow_accounts(status, tweet)
+            # tag_someone(status, self.api)
+        self.msg_log(f"END :: Process giveaways tweets over.")
+
+    """ Get tweets from hashtag, sort and retweet them """
+    def handle_hashtag(self, hashtag, numbers):
         self.msg_log(f"START :: Looking for {str(numbers)} tweets containing {hashtag}")
         search_request = tweepy.Cursor(self.api.search, q=hashtag, lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
-            if self.too_old(status):
+            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_hashtag']):
                 continue
             tweet = self.__return_tweet(status)
             self.print_tweet_infos(status, tweet)
-            if not self.__retweet_like_handler(status, hashtag):
-                continue
-            if int(status.retweet_count) > int(self.config['nbRtFollow']):
-                self.__follow_accounts(status, tweet)
-                # tag_someone(status, self.api)
-            self.msg_log(f"END :: Process hashtag {hashtag} over.")
+            self.__retweet_hashtag_handler(status)
+        self.msg_log(f"END :: Process hashtag {hashtag} over.")
 
 
     """ Send trends tweet to the process_retweet function """
@@ -151,7 +166,6 @@ class Twittbot:
                 self.msg_log("Someone is tagged in this tweet")
                 continue
             self.api.update_status(tweet.encode('utf-8'))
-            self.msg_log("The user " + str(status._json["user"]["screen_name"]) + " as only " + str(
-                status._json["user"]["followers_count"]) + "followers so we use his tweet: " + tweet.encode('utf-8'))
+            self.msg_log(f'The user {status._json["user"]["screen_name"]} as only {status._json["user"]["followers_count"]} followers so we use his tweet: {tweet.encode("utf-8")}')
             self.msg_log("END :: Tweet stoled (hihi).")
             break

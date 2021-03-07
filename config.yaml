@@ -5,11 +5,11 @@ lang : 'fr'
 # Exemple : France is 23424819
 woeid : 23424819
 
-# Needed retweet number to like and retweet a tweet
-nbRtLikeRt : 5
+# Number of retweet nedded to retweet a tweet for the -m (hashtag) mod
+nb_rt_hashtag : 5
 
-# Needed retweet number to follow an account
-nbRtFollow : 500
+# Number of retweet needed to play to a contest for the -c (contest) mod
+nb_rt_contest : 500
 
 # Maximum number of month (compared to the current date) the tweet mustn't exceed to be processed
 monthMax : 1
