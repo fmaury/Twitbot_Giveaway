@@ -60,7 +60,7 @@ class Twittbot:
         else:
             date = status._json['created_at']
         d = datetime.date.today()
-        if d.month - month[date.split()[1]] <= int(self.config['monthMax']):
+        if d.month - month[date.split()[1]] <= int(self.config['max_month']):
             return False
         return True
 
@@ -144,7 +144,7 @@ class Twittbot:
     """ Get giveaways tweets, sort, follow, retweet and like them """
     def handle_contest(self, numbers):
         self.msg_log(f"START :: Looking for {str(numbers)} giveaways tweets")
-        search_request = tweepy.Cursor(self.api.search, q='concours', lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
+        search_request = tweepy.Cursor(self.api.search, q=self.config['giveaway_word'], lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
             tweet = self.__return_tweet(status)
@@ -184,7 +184,7 @@ class Twittbot:
         hashtag = self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query']
         search_request = tweepy.Cursor(self.api.search, q=hashtag + ' -filter:retweets', lang=str(self.config['lang']), tweet_mode="extended").items(50)
         for status in search_request:
-            if int(status._json["user"]["followers_count"]) > 200:
+            if int(status._json["user"]["followers_count"]) > self.config['nb_follower_stole']:
                 self.msg_log("This user has " + str(status._json["user"]["followers_count"]) + " followers it's risky we'll try another tweet")
                 continue
             tweet = self.__return_tweet(status)

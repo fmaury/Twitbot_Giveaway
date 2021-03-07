@@ -12,4 +12,10 @@ nb_rt_hashtag : 5
 nb_rt_contest : 500
 
 # Maximum number of month (compared to the current date) the tweet mustn't exceed to be processed
-monthMax : 1
+max_month : 1
+
+# Maximum number of followers the victim should have for stealing his tweet
+nb_follower_stole: 50
+
+# Word used to search for giveaway tweet could be giveaway, contest, concours ect...
+giveaway_word: 'concours'
