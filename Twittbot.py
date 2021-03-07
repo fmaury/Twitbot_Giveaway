@@ -12,12 +12,10 @@ class Twittbot:
 
         self.api = None
 
-        self.logfile = '/var/log/twittbot.log'
-
     """ Log a message """
     def msg_log(self, message):
         timestamp = datetime.datetime.now()
-        with open(self.logfile, 'a+') as logfile:
+        with open(self.config['logfile'], 'a+') as logfile:
             logfile.write(f'[{timestamp}] {message}\n')
 
     """ Connect to the twitter api """

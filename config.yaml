@@ -1,3 +1,6 @@
+# In which file the log must go
+logfile: '/var/log/twittbot.log'
+
 # Tweet's langage. 'fr' for French 'en' for English...
 lang : 'fr'
 
