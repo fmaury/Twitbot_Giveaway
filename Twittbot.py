@@ -48,7 +48,6 @@ class Twittbot:
     def print_tweet_infos(self, status, tweet):
         try:
             self.msg_log(f'Tweet write by {status._json["entities"]["user_mentions"][0]["screen_name"]}. Has {str(status.retweet_count)} RTs')
-
         except:
             self.msg_log(f'Tweet write by {status._json["user"]["screen_name"]}. Has {str(status.retweet_count)} RTs')
         self.msg_log(tweet.encode('utf-8'))
@@ -80,7 +79,6 @@ class Twittbot:
                 tweet = status.full_text
         return tweet
 
-
     def __retweet_like_giveaway_handler(self, status):
         try:
             self.api.create_favorite(status.id)
@@ -104,28 +102,44 @@ class Twittbot:
                 self.follow(names.encode('utf-8'))
                 self.msg_log(f'The user {names.encode("utf-8")} tag in the tweet was followed.')
 
+    def __get_username(self):
+        my_id = self.api.me()._json['id']
+        user_list = self.api.followers_ids(my_id)
+        if len(user_list) == 0:
+            return '@elonmusk'
+        user = user_list[random.randint(0, len(user_list) - 1)]
+        username = self.api.get_user(user)._json['screen_name']
+        self.msg_log(f"STATUS :: Request username in my followers: name @{username} id {user}.")
+        return f'@{username}'
 
-    #   def get_username(api, num):
-    #       return self.api.get_user(self.api.followers_ids(self.api.me()._json['id'])[num])._json["screen_name"]
-
-    #   def tag_someone(status, api):
-    #       self.api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42),
-    #                         status._json["id"])
-
+    """ Check if people are tagged in the tweet, if yes request in my follower, replace user mentionned with mine and reply to the tweet """
     def __stole_contest_reply(self, status):
-        print('stole')
-        print(status)
+        reply_list = []
         if 'retweeted_status' in status._json:
             tweet_id = status._json['retweeted_status']['id']
         else:
             tweet_id = status._json["id"]
-        print(f'ID {tweet_id}')
-        name = None
         try:
             name = status._json["entities"]["user_mentions"][0]["screen_name"]
         except:
             name = status._json['user']['screen_name']
-        print(f"name {name}")
+        self.msg_log(f"STATUS :: Trying to stole a reply to the user {name} and tweet ID {tweet_id}.")
+        rep_request = tweepy.Cursor(self.api.search, q=f'@{name}', since_id=tweet_id, tweet_mode="extended").items(50)
+        for rep in rep_request:
+            if rep._json['in_reply_to_status_id'] == tweet_id:
+                tweet = self.__return_tweet(rep)
+                if tweet.count('@') > 1:
+                    self.msg_log(f"STATUS :: People tagged in this tweet:  {tweet}.")
+                    tweet_split = tweet.split(' ')
+                    for word in tweet_split:
+                        if word[0] == '@' and word.find(name) == -1:
+                            reply_list.append(self.__get_username())
+                        else:
+                            reply_list.append(word)
+                    reply = ' '.join(reply_list)
+                    self.msg_log(f"STATUS :: Original tweet modified: {reply}.")
+                    self.api.update_status(reply)
+                    break
 
     """ Get giveaways tweets, sort, follow, retweet and like them """
     def handle_contest(self, numbers):
@@ -133,7 +147,6 @@ class Twittbot:
         search_request = tweepy.Cursor(self.api.search, q='concours', lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
-            self.__stole_contest_reply(status)
             tweet = self.__return_tweet(status)
             self.print_tweet_infos(status, tweet)
             if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_contest']):
@@ -141,7 +154,7 @@ class Twittbot:
                 continue
             self.__retweet_like_giveaway_handler(status)
             self.__follow_accounts(status, tweet)
-            # tag_someone(status, self.api)
+            self.__stole_contest_reply(status)
         self.msg_log(f"END :: Process giveaways tweets over.")
 
     """ Get tweets from hashtag, sort and retweet them """
@@ -161,10 +174,9 @@ class Twittbot:
                 self.msg_log(f"Already RT !: {e}")
         self.msg_log(f"END :: Process hashtag {hashtag} over.")
 
-
     """ Send trends tweet to the process_retweet function """
     def trend(self, numbers):
-        self.process_retweet(self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query'], numbers)
+        self.handle_hashtag(self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query'], numbers)
 
     """ Get some trends tweet then look if the user has few followers and tweet it like it was you that posted that """
     def stole(self):
