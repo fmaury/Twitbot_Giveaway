@@ -44,13 +44,6 @@ class Twittbot:
             self.follow(follower)
         self.msg_log("START :: Folliw back over.")
 
-    #   def get_username(api, num):
-    #       return self.api.get_user(self.api.followers_ids(self.api.me()._json['id'])[num])._json["screen_name"]
-
-    #   def tag_someone(status, api):
-    #       self.api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42),
-    #                         status._json["id"])
-
     """ Write infos about the processed twwet."""
     def print_tweet_infos(self, status, tweet):
         try:
@@ -87,11 +80,6 @@ class Twittbot:
                 tweet = status.full_text
         return tweet
 
-    def __retweet_hashtag_handler(self, status):
-        try:
-            self.api.retweet(status.id)
-        except Exception as e:
-            self.msg_log(f"Already RT !: {e}")
 
     def __retweet_like_giveaway_handler(self, status):
         try:
@@ -116,16 +104,41 @@ class Twittbot:
                 self.follow(names.encode('utf-8'))
                 self.msg_log(f'The user {names.encode("utf-8")} tag in the tweet was followed.')
 
+
+    #   def get_username(api, num):
+    #       return self.api.get_user(self.api.followers_ids(self.api.me()._json['id'])[num])._json["screen_name"]
+
+    #   def tag_someone(status, api):
+    #       self.api.update_status('@' + status._json["entities"]["user_mentions"][0]["screen_name"] + ' @' + get_username(api, 21) + ' @' + get_username(api, 42),
+    #                         status._json["id"])
+
+    def __stole_contest_reply(self, status):
+        print('stole')
+        print(status)
+        if 'retweeted_status' in status._json:
+            tweet_id = status._json['retweeted_status']['id']
+        else:
+            tweet_id = status._json["id"]
+        print(f'ID {tweet_id}')
+        name = None
+        try:
+            name = status._json["entities"]["user_mentions"][0]["screen_name"]
+        except:
+            name = status._json['user']['screen_name']
+        print(f"name {name}")
+
     """ Get giveaways tweets, sort, follow, retweet and like them """
     def handle_contest(self, numbers):
         self.msg_log(f"START :: Looking for {str(numbers)} giveaways tweets")
         search_request = tweepy.Cursor(self.api.search, q='concours', lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
-            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_contest']):
-                continue
+            self.__stole_contest_reply(status)
             tweet = self.__return_tweet(status)
             self.print_tweet_infos(status, tweet)
+            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_contest']):
+                self.msg_log(f"STATUS :: This tweet is too old or has not enougth retweet")
+                continue
             self.__retweet_like_giveaway_handler(status)
             self.__follow_accounts(status, tweet)
             # tag_someone(status, self.api)
@@ -137,11 +150,15 @@ class Twittbot:
         search_request = tweepy.Cursor(self.api.search, q=hashtag, lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
-            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_hashtag']):
-                continue
             tweet = self.__return_tweet(status)
             self.print_tweet_infos(status, tweet)
-            self.__retweet_hashtag_handler(status)
+            if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_hashtag']):
+                self.msg_log(f"STATUS :: This tweet is too old or has not enougth retweet")
+                continue
+            try:
+                self.api.retweet(status.id)
+            except Exception as e:
+                self.msg_log(f"Already RT !: {e}")
         self.msg_log(f"END :: Process hashtag {hashtag} over.")
 
 
