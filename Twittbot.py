@@ -136,7 +136,7 @@ class Twittbot:
                             reply_list.append(word)
                     reply = ' '.join(reply_list)
                     self.msg_log(f"STATUS :: Original tweet modified: {reply}.")
-                    self.api.update_status(reply)
+                    self.api.update_status(reply, tweet_id)
                     break
 
     """ Get giveaways tweets, sort, follow, retweet and like them """
