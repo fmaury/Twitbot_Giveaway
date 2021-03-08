@@ -82,10 +82,12 @@ class Twittbot:
             self.api.create_favorite(status.id)
         except Exception as e:
             self.msg_log(f"Already liked !: {e}")
+            return False
         try:
             self.api.retweet(status.id)
         except Exception as e:
             self.msg_log(f"Already RT !: {e}")
+        return True
 
     """ Follow account and tagged account in the tweet """
     def __follow_accounts(self, status, tweet):
@@ -150,9 +152,9 @@ class Twittbot:
             if self.too_old(status) or int(status.retweet_count) < int(self.config['nb_rt_contest']):
                 self.msg_log(f"STATUS :: This tweet is too old or has not enougth retweet")
                 continue
-            self.__retweet_like_giveaway_handler(status)
-            self.__follow_accounts(status, tweet)
-            self.__stole_contest_reply(status)
+            if self.__retweet_like_giveaway_handler(status):
+                self.__follow_accounts(status, tweet)
+                self.__stole_contest_reply(status)
         self.msg_log(f"END :: Process giveaways tweets over.")
 
     """ Get tweets from hashtag, sort and retweet them """
