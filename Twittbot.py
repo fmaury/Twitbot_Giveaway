@@ -6,9 +6,10 @@ import time
 
 
 class Twittbot:
-    def __init__(self, config=None):
+    def __init__(self, account_name=None, config=None):
 
         self.config = config
+        self.account_name = account_name
 
         self.api = None
 
@@ -16,7 +17,7 @@ class Twittbot:
     def msg_log(self, message):
         timestamp = datetime.datetime.now()
         with open(self.config['logfile'], 'a+') as logfile:
-            logfile.write(f'[{timestamp}] {message}\n')
+            logfile.write(f'[{timestamp}] :: {self.account_name} :: {message}\n')
 
     """ Connect to the twitter api """
     def connect_api(self, consumer_key=None, consumer_secret=None, access_token=None, access_secret=None):
