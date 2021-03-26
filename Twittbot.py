@@ -13,6 +13,8 @@ class Twittbot:
 
         self.api = None
 
+        self.followed = []
+
     """ Log a message """
     def msg_log(self, message):
         timestamp = datetime.datetime.now()
@@ -100,6 +102,7 @@ class Twittbot:
             if names and names[0] == '@':
                 if names[:-1] == '.' or names[:-1] == ',':
                     names = names[:-1]
+                self.followed.append(names)
                 self.follow(names.encode('utf-8'))
                 self.msg_log(f'The user {names.encode("utf-8")} tag in the tweet was followed.')
 
@@ -133,7 +136,7 @@ class Twittbot:
                     self.msg_log(f"STATUS :: People tagged in this tweet:  {tweet}.")
                     tweet_split = tweet.split(' ')
                     for word in tweet_split:
-                        if word[0] == '@' and word.find(name) == -1:
+                        if word[0] == '@' and word.find(name) == -1 and name not in self.followed:
                             reply_list.append(self.__get_username())
                         else:
                             reply_list.append(word)
@@ -147,6 +150,7 @@ class Twittbot:
         self.msg_log(f"START :: Looking for {str(numbers)} giveaways tweets")
         search_request = tweepy.Cursor(self.api.search, q=self.config['giveaway_word'], lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
+            self.followed = []
             time.sleep(random.randrange(2, 10, 1))
             tweet = self.__return_tweet(status)
             self.print_tweet_infos(status, tweet)
