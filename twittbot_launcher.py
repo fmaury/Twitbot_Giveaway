@@ -25,8 +25,8 @@ if __name__ == "__main__":
         if args.account not in tokens.keys():
             print(f'{args.account} is not in the token.json file, choose one of this account: {", ".join(tokens.keys())}')
             sys.exit()
-        consumer_key = tokens[args.account]["CONSUMER_KEY"]
-        consumer_secret = tokens[args.account]["CONSUMER_SECRET"]
+        consumer_key = tokens[args.account]["API_KEY"]
+        consumer_secret = tokens[args.account]["API_SECRET"]
         access_token = tokens[args.account]["ACCESS_TOKEN"]
         access_secret = tokens[args.account]["ACCESS_SECRET"]
 

@@ -136,7 +136,7 @@ class Twittbot:
                     self.msg_log(f"STATUS :: People tagged in this tweet:  {tweet}.")
                     tweet_split = tweet.split(' ')
                     for word in tweet_split:
-                        if word[0] == '@' and word.find(name) == -1 and name not in self.followed:
+                        if word[0] == '@' and word.find(name) == -1 and word not in self.followed:
                             reply_list.append(self.__get_username())
                         else:
                             reply_list.append(word)
