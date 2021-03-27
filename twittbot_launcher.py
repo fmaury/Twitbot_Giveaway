@@ -16,14 +16,19 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--numbers", help="Number of tweets the script will request", action='store', default=10, type=int)
     parser.add_argument("-f", "--followback", help="Follow back people that follow you", action='store_true')
     args = parser.parse_args()
-    if not args.account and not args.followback and not args.trend and not args.hashtag and not args.stole and not args.contest:
+    if not args.account:
+        print('Missing: You must choose an account from tokens.json unsing the -a option\n', file=sys.stderr)
+        parser.print_help()
+        sys.exit()
+
+    if not args.followback and not args.trend and not args.hashtag and not args.stole and not args.contest:
         parser.print_help()
         sys.exit()
 
     with open('tokens.json', 'r') as json_file:
         tokens = json.load(json_file)
         if args.account not in tokens.keys():
-            print(f'{args.account} is not in the token.json file, choose one of this account: {", ".join(tokens.keys())}')
+            print(f'{args.account} is not in the token.json file, choose one of this account: {", ".join(tokens.keys())}', file=sys.stderr)
             sys.exit()
         consumer_key = tokens[args.account]["API_KEY"]
         consumer_secret = tokens[args.account]["API_SECRET"]
