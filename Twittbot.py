@@ -148,6 +148,7 @@ class Twittbot:
     """ Get giveaways tweets, sort, follow, retweet and like them """
     def handle_contest(self, numbers):
         self.msg_log(f"START :: Looking for {str(numbers)} giveaways tweets")
+        time.sleep(random.randrange(1, 90, 1))
         search_request = tweepy.Cursor(self.api.search, q=self.config['giveaway_word'], lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             self.followed = []
@@ -165,6 +166,7 @@ class Twittbot:
     """ Get tweets from hashtag, sort and retweet them """
     def handle_hashtag(self, hashtag, numbers):
         self.msg_log(f"START :: Looking for {str(numbers)} tweets containing {hashtag}")
+        time.sleep(random.randrange(1, 90, 1))
         search_request = tweepy.Cursor(self.api.search, q=hashtag, lang=str(self.config['lang']), tweet_mode="extended").items(numbers)
         for status in search_request:
             time.sleep(random.randrange(2, 10, 1))
@@ -181,11 +183,13 @@ class Twittbot:
 
     """ Send trends tweet to the process_retweet function """
     def trend(self, numbers):
+        time.sleep(random.randrange(1, 90, 1))
         self.handle_hashtag(self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query'], numbers)
 
     """ Get some trends tweet then look if the user has few followers and tweet it like it was you that posted that """
     def stole(self):
         self.msg_log("START :: Looking for a tweet to stole.")
+        time.sleep(random.randrange(1, 90, 1))
         hashtag = self.api.trends_place(int(self.config['woeid']))[0]['trends'][0]['query']
         search_request = tweepy.Cursor(self.api.search, q=hashtag + ' -filter:retweets', lang=str(self.config['lang']), tweet_mode="extended").items(50)
         for status in search_request:
