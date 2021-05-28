@@ -92,12 +92,12 @@ giveaway_word: 'concours'
 
 ## Example
 
-Get 10 tweet (default value) about PSG and retweet those with more than 5 RT
+Get 10 tweet (default value) about PSG and retweet those with more than 5 RT (it's in the config file)
 ```
 python3 twittbot_launcher.py -a first_account -m psg
 ```
 
-Get 20 trending tweet in France (it's in the config file) and retweet those with more than 5 RT
+Get 20 trending tweet in France (it's in the config file) and retweet those with more than 5 RT (it's in the config file)
 ```
 python3 twittbot_launcher.py -a first_account -t -n 20
 ```
