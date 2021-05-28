@@ -33,8 +33,6 @@ This Bot can be used to do multiple things as:
 ```
 $ python twittbot_launcher.py --help
 
-Missing: You must choose an account from tokens.json unsing the -a option
-
 usage: twittbot_launcher.py [-h] [-a ACCOUNT] [-m HASHTAG] [-c] [-t] [-s]
                             [-n NUMBERS] [-p POST] [-i IMAGE] [-f]
 
