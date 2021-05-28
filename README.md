@@ -56,7 +56,7 @@ optional arguments:
 ```
 
 ## Config
-You can modify the config in this file
+You can modify the config in config.yaml
 
 Don't forget to create manually the '/var/log/twittbot.log' file if you are not root and give you the right permissions
 
