@@ -1,5 +1,6 @@
 # Giveaway Twitter bot
 This Bot can be used to do multiple things as:
+- tweet a text and/or an image
 - retweet specific hashtag
 - play to giveaway contest
 - retweet trending hashtag
