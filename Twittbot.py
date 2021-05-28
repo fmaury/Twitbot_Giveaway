@@ -3,6 +3,7 @@ import tweepy
 import random
 import datetime
 import time
+from pathlib import Path
 
 
 class Twittbot:
@@ -207,3 +208,29 @@ class Twittbot:
             self.msg_log(f'The user {status._json["user"]["screen_name"]} as only {status._json["user"]["followers_count"]} followers so we use his tweet: {tweet.encode("utf-8")}')
             self.msg_log("END :: Tweet stoled (hihi).")
             break
+
+    """ Tet a text an image or both """
+    def tweet(self, tweet_file=None, image=None):
+        time.sleep(random.randrange(1, 90, 1))
+        self.msg_log(f'START :: Tweet something')
+        if tweet_file:
+            if not Path(tweet_file).exists():
+                self.msg_log(f'ERROR :: File {tweet_file} doesn\'t exist')
+                return
+        if image:
+            if not Path(image).exists():
+                self.msg_log(f'ERROR :: Image {image} doesn\'t exist')
+                return
+        if tweet_file and image:
+            self.msg_log(f'INFO :: Tweet the text from {tweet_file} with image from {image}')
+            with open(tweet_file, 'r') as tweetf:
+                tweet = tweetf.read()
+                self.api.update_with_media(image, status=tweet)
+        elif tweet_file:
+            self.msg_log(f'INFO :: Tweet the text from {tweet_file}')
+            with open(tweet_file, 'r') as tweetf:
+                tweet = tweetf.read()
+                self.api.update_status(tweet)
+        elif image:
+            self.msg_log(f'INFO :: Tweet image from {image}')
+            self.api.update_with_media(image)

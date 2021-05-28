@@ -14,6 +14,8 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--trend", help="Use twitter trends instead of a specific hashtag", action='store_true')
     parser.add_argument("-s", "--stole", help="Stole someone tweet in the top trend section", action='store_true')
     parser.add_argument("-n", "--numbers", help="Number of tweets the script will request", action='store', default=10, type=int)
+    parser.add_argument("-p", "--post", help='Post a tweet from a specified file (can be used with "-i" option)', action='store')
+    parser.add_argument("-i", "--image", help='Post an image from a specified file (can be used with "-p" option)', action='store')
     parser.add_argument("-f", "--followback", help="Follow back people that follow you", action='store_true')
     args = parser.parse_args()
     if not args.account:
@@ -21,7 +23,7 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit()
 
-    if not args.followback and not args.trend and not args.hashtag and not args.stole and not args.contest:
+    if not args.followback and not args.trend and not args.hashtag and not args.stole and not args.contest and not args.post and not args.image:
         parser.print_help()
         sys.exit()
 
@@ -49,3 +51,5 @@ if __name__ == "__main__":
         twittbot.handle_hashtag(args.hashtag, args.numbers)
     if args.stole:
         twittbot.stole()
+    if args.post or args.image:
+        twittbot.tweet(args.post, args.image)
