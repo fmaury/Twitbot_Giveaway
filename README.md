@@ -1,7 +1,7 @@
 # Giveaway Twitter bot
 This Bot can be used to do multiple things as:
 - tweet a text and/or an image
-- retweet specific hashtag
+- retweet some tweet containig specific hashtag
 - play to giveaway contest
 - retweet trending hashtag
 - stole a tweet to someone and post it
@@ -31,7 +31,30 @@ This Bot can be used to do multiple things as:
 ```
 ## Usage
 ```
-python twittbot_launcher.py --help
+$ python twittbot_launcher.py --help
+
+Missing: You must choose an account from tokens.json unsing the -a option
+
+usage: twittbot_launcher.py [-h] [-a ACCOUNT] [-m HASHTAG] [-c] [-t] [-s]
+                            [-n NUMBERS] [-p POST] [-i IMAGE] [-f]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -a ACCOUNT, --account ACCOUNT
+                        Select this account
+  -m HASHTAG, --hashtag HASHTAG
+                        Request tweets with this hashtag in it
+  -c, --contest         Play to twitter contests and giveaways
+  -t, --trend           Use twitter trends instead of a specific hashtag
+  -s, --stole           Stole someone tweet in the top trend section
+  -n NUMBERS, --numbers NUMBERS
+                        Number of tweets the script will request
+  -p POST, --post POST  Post a tweet from a specified file (can be used with
+                        "-i" option)
+  -i IMAGE, --image IMAGE
+                        Post an image from a specified file (can be used with
+                        "-p" option)
+  -f, --followback      Follow back people that follow you
 ```
 
 ## Config
@@ -67,3 +90,48 @@ nb_follower_stole: 50
 giveaway_word: 'concours'
 ```
 
+## Example
+
+Get 10 tweet (default value) about PSG and retweet those with more than 5 RT
+```
+python3 twittbot_launcher.py -a first_account -m psg
+```
+
+Get 20 trending tweet in France (it's in the config file) and retweet those with more than 5 RT
+```
+python3 twittbot_launcher.py -a first_account -t -n 20
+```
+
+Play to giveaway contest using 'concours' as keyword (it's in the config file)
+```
+python3 twittbot_launcher.py -a second_account -c 
+```
+
+
+Followback each people who follow first_account
+```
+python3 twittbot_launcher.py -a first_account -f
+```
+
+
+Stole a trending tweet in France (it's in the config file) to someone who are less than 50 followers (it's in the config file) and post it using first_account account
+```
+python3 twittbot_launcher.py -a first_account -s
+```
+
+
+Tweet the text in /root/to/file
+```
+python3 twittbot_launcher.py -a first_account -p /root/to/file
+```
+
+Tweet the image in /root/to/image
+```
+python3 twittbot_launcher.py -a first_account -i /root/to/image
+```
+
+
+Tweet the text in /root/to/file and post the image in /root/to/image
+```
+python3 twittbot_launcher.py -a first_account -p /root/to/file -i /root/to/image
+```
