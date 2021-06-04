@@ -118,18 +118,18 @@ python3 twittbot_launcher.py -a first_account -s
 ```
 
 
-Tweet the text in /root/to/file
+Tweet the text in /path/to/file
 ```
 python3 twittbot_launcher.py -a first_account -p /root/to/file
 ```
 
-Tweet the image in /root/to/image
+Tweet the image in /path/to/image
 ```
 python3 twittbot_launcher.py -a first_account -i /root/to/image
 ```
 
 
-Tweet the text in /root/to/file and post the image in /root/to/image
+Tweet the text in /path/to/file and post the image in /root/to/image
 ```
 python3 twittbot_launcher.py -a first_account -p /root/to/file -i /root/to/image
 ```
