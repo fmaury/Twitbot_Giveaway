@@ -33,7 +33,7 @@ class Twittbot:
     def follow(self, name):
         try:
             self.msg_log(f'{name} is now followed.')
-            self.api.create_friendship(name)
+            self.api.create_friendship(screen_name=name)
         except Exception as e:
             self.msg_log(f'{name} is already my friend :(, can\'t follow him: {e}')
 
@@ -44,7 +44,8 @@ class Twittbot:
         user_list = self.api.get_follower_ids(user_id=my_id)
         for follower in user_list:
             time.sleep(random.randrange(2, 5, 1))
-            self.follow(follower)
+            screen_name = self.api.get_user(user_id=follower)._json['screen_name']
+            self.follow(screen_name)
         self.msg_log("START :: Folliw back over.")
 
     """ Write infos about the processed twwet."""
@@ -106,7 +107,7 @@ class Twittbot:
                     names = names[:-1]
                 self.followed.append(names)
                 self.follow(names.encode('utf-8'))
-                self.msg_log(f'The user {names.encode("utf-8")} tag in the tweet was followed.')
+                self.msg_log(f'The tagged user {names} in this tweet was followed.')
 
     def __get_username(self):
         my_id = self.api.verify_credentials()._json['id']
@@ -226,12 +227,12 @@ class Twittbot:
             self.msg_log(f'INFO :: Tweet the text from {tweet_file} with image from {image}')
             with open(tweet_file, 'r') as tweetf:
                 tweet = tweetf.read()
-                self.api.update_with_media(image, status=tweet)
+                self.api.update_status_with_media(filename=image, status=tweet)
         elif tweet_file:
             self.msg_log(f'INFO :: Tweet the text from {tweet_file}')
             with open(tweet_file, 'r') as tweetf:
                 tweet = tweetf.read()
-                self.api.update_status(tweet)
+                self.api.update_status(status=tweet)
         elif image:
             self.msg_log(f'INFO :: Tweet image from {image}')
-            self.api.update_with_media(image)
+            self.api.update_status_with_media(filename=image)
