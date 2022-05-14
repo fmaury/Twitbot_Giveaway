@@ -11,7 +11,7 @@ class Twittbot:
 
         self.config = config
         self.account_name = account_name
-        self._sleep = 2
+        self._sleep = 60
 
         self.api = None
 
