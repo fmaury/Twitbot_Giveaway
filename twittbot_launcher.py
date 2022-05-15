@@ -4,6 +4,7 @@ import json
 import sys
 import argparse
 
+from pathlib import Path
 from Twittbot import Twittbot
 
 if __name__ == "__main__":
@@ -26,8 +27,7 @@ if __name__ == "__main__":
     if not args.followback and not args.trend and not args.hashtag and not args.stole and not args.contest and not args.post and not args.image:
         parser.print_help()
         sys.exit()
-
-    with open('tokens.json', 'r') as json_file:
+    with open(f'{Path(__file__).parents[0]}/tokens.json', 'r') as json_file:
         tokens = json.load(json_file)
         if args.account not in tokens.keys():
             print(f'{args.account} is not in the token.json file, choose one of this account: {", ".join(tokens.keys())}', file=sys.stderr)
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         access_token = tokens[args.account]["ACCESS_TOKEN"]
         access_secret = tokens[args.account]["ACCESS_SECRET"]
 
-    config = yaml.load(open("./config.yaml", 'r'), Loader=yaml.Loader)
+    config = yaml.load(open(f"{Path(__file__).parents[0]}/config.yaml", 'r'), Loader=yaml.Loader)
 
     twittbot = Twittbot(args.account, config)
     twittbot.connect_api(consumer_key=consumer_key, consumer_secret=consumer_secret, access_token=access_token, access_secret=access_secret)
